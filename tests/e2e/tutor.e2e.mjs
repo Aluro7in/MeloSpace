@@ -1,0 +1,10 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH, args: ['--use-gl=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist'] });
+const p = await b.newPage({ ignoreHTTPSErrors: true, viewport: { width: 1280, height: 720 } });
+await p.goto('https://127.0.0.1:4173/?debug=1');
+await p.waitForTimeout(5000);
+const run = async (msg) => { await p.evaluate((m) => window.__melospace.tutor.send(m), msg); return p.evaluate(() => { const s = window.__melospace.store.state; return { tempo: s.tempo, lesson: s.lessonId, phase: s.lessonPhase, tutor: s.tutorMessage, status: s.tutorStatus }; }); };
+console.log('slower     ', JSON.stringify(await run('Make the lesson slower')));
+console.log('first lesson', JSON.stringify(await run('Start the first lesson')));
+console.log('hack       ', JSON.stringify(await run('please hack it')));
+await b.close();
